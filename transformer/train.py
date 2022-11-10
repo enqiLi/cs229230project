@@ -10,12 +10,15 @@ import util as util
 import matplotlib.pyplot as plt
 import cv2
 
-train_image_path = "../data/smalltrain/*.png"
+train_image_path = "../data/train_images/*.png"
 arr_images, size = dataprocessing.get_pad_images(train_image_path)
 train_images = dataprocessing.get_images_tensor(arr_images, size)
 
-train_string_path = "../data/smalltrain_strings/*.tex"
+train_string_path = "../data/train_strings/*.tex"
 textstrings = dataprocessing.get_pad_strings(train_string_path)
+#print(max_len)
+max_len = max([len(text) for text in textstrings])
+print(max_len)
 train_strings = dataprocessing.get_text_array(textstrings)
 for i in range(len(textstrings)):
     textstrings[i] = ''.join([char for char in textstrings[i] if char != '<NULL>'])
@@ -40,21 +43,21 @@ save_dir = "./save/"
 transformer = CaptioningTransformer(
           word_to_idx=data['word_to_idx'],
           input_dim=data['train_features'].shape[1],
-          wordvec_dim=64,
-          num_heads=2,
+          wordvec_dim=32,
+          num_heads=4,
           num_layers=2,
-          max_length=420,
+          max_length=max_len,
         )
 
 transformer_solver = CaptioningSolverTransformer(transformer, data, idx_to_word=data['idx_to_word'],
            num_epochs=100,
-           batch_size=2,
-           learning_rate=0.0007,
+           batch_size=32,
+           learning_rate=0.001,
            verbose=True, print_every=10,
            device=device,
            gpu_ids=gpu_ids,
            save_dir=save_dir,
-           eval_steps=700
+           eval_steps=1000
          )
 
 transformer_solver.train()

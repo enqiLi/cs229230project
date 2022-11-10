@@ -1,6 +1,6 @@
 import util as util
 import torch
-from torchtext.data.metrics import bleu_score
+# from torchtext.data.metrics import bleu_score
 import numpy as np
 import nltk
 import sys
