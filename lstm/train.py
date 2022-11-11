@@ -4,8 +4,8 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 import dataprocessing as dataprocessing
-from captioning_solver_transformer import *
-from transformer import *
+from solver import *
+from rnn import *
 import util as util
 import matplotlib.pyplot as plt
 import cv2
@@ -44,16 +44,14 @@ if device == "cuda":
 
 save_dir = "./save/"
 
-transformer = CaptioningTransformer(
+imageToSeq = LSTMImageToSeq(
           word_to_idx=data['word_to_idx'],
           input_dim=data['train_features'].shape[1],
           wordvec_dim=32,
-          num_heads=4,
-          num_layers=2,
-          max_length=max_len,
+          # max_length=max_len,
         )
 
-transformer_solver = CaptioningSolverTransformer(transformer, data, idx_to_word=data['idx_to_word'],
+transformer_solver = CaptioningSolver(imageToSeq, data, idx_to_word=data['idx_to_word'],
            num_epochs=100,
            batch_size=32,
            learning_rate=0.001,

@@ -131,11 +131,10 @@ class CaptioningTransformer(nn.Module):
             N = features.shape[0]
 
             # Create an empty captions tensor (where all tokens are NULL).
-            captions = self._null * torch.ones((N, max_length)).int().cuda() #, dtype=np.int32)
+            captions = self._null * torch.ones((N, max_length)).int().cuda()
 
             # Create a partial caption, with only the start token.
-            partial_caption = self._start * torch.ones(N).int().cuda() #, dtype=np.int32)
-            # partial_caption = torch.LongTensor(partial_caption).cuda()
+            partial_caption = self._start * torch.ones(N).int().cuda()
             # [N] -> [N, 1]
             partial_caption = partial_caption.unsqueeze(1)
 
@@ -150,7 +149,7 @@ class CaptioningTransformer(nn.Module):
                 word = torch.argmax(output_logits, axis=1)
 
                 # Update our overall caption and our current partial caption.
-                captions[:, t] = word #.numpy()
+                captions[:, t] = word
                 word = word.unsqueeze(1)
                 partial_caption = torch.cat([partial_caption, word], dim=1)
 
