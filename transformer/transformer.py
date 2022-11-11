@@ -103,7 +103,7 @@ class CaptioningTransformer(nn.Module):
 
         features = self.visual_projection(features).unsqueeze(1)
 
-        tgt_mask = torch.tril(torch.ones(T, T))
+        tgt_mask = torch.tril(torch.ones(T, T)).cuda()
         o = self.transformer(encoded_captions, features, tgt_mask=tgt_mask)
 
         scores = self.output(o)
@@ -127,15 +127,15 @@ class CaptioningTransformer(nn.Module):
          - captions: captions for each example, of shape (N, max_length)
         """
         with torch.no_grad():
-            features = torch.Tensor(features)
+            # features = torch.Tensor(features)
             N = features.shape[0]
 
             # Create an empty captions tensor (where all tokens are NULL).
-            captions = self._null * np.ones((N, max_length), dtype=np.int32)
+            captions = self._null * torch.ones((N, max_length)).int().cuda() #, dtype=np.int32)
 
             # Create a partial caption, with only the start token.
-            partial_caption = self._start * np.ones(N, dtype=np.int32)
-            partial_caption = torch.LongTensor(partial_caption)
+            partial_caption = self._start * torch.ones(N).int().cuda() #, dtype=np.int32)
+            # partial_caption = torch.LongTensor(partial_caption).cuda()
             # [N] -> [N, 1]
             partial_caption = partial_caption.unsqueeze(1)
 
@@ -150,7 +150,7 @@ class CaptioningTransformer(nn.Module):
                 word = torch.argmax(output_logits, axis=1)
 
                 # Update our overall caption and our current partial caption.
-                captions[:, t] = word.numpy()
+                captions[:, t] = word #.numpy()
                 word = word.unsqueeze(1)
                 partial_caption = torch.cat([partial_caption, word], dim=1)
 
@@ -162,7 +162,7 @@ class TransformerDecoderLayer(nn.Module):
     A single layer of a Transformer decoder, to be used with TransformerDecoder.
     """
 
-    def __init__(self, input_dim, num_heads, dim_feedforward=2048, dropout=0.0):
+    def __init__(self, input_dim, num_heads, dim_feedforward=2048, dropout=0.2):
         """
         Construct a TransformerDecoderLayer instance.
 

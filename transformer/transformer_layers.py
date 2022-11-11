@@ -173,7 +173,7 @@ class MultiHeadAttention(nn.Module):
         #     function masked_fill may come in handy.                              #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            
         H = self.n_head
 
         keys = self.key(key)
@@ -186,7 +186,7 @@ class MultiHeadAttention(nn.Module):
         querys = querys.view((N, S, H, E//H)).transpose(1, 2)
         
         produ = querys @ keys.transpose(-2, -1)
-        produ = produ / torch.sqrt(torch.FloatTensor([E//H]))
+        produ = produ / torch.sqrt(torch.cuda.FloatTensor([E//H]))
         if attn_mask is not None:
           produ = produ.masked_fill(attn_mask == 0, -1e10)
         

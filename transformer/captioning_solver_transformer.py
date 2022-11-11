@@ -84,7 +84,8 @@ class CaptioningSolverTransformer(object):
 
         self.print_every = kwargs.pop("print_every", 10)
         self.verbose = kwargs.pop("verbose", True)
-        self.device = kwargs.pop("device", 'cpu')
+        self.device = kwargs.pop("device", 'cuda')
+        print(self.device)
         self.gpu_ids = kwargs.pop("gpu_ids", [])
         self.save_dir = kwargs.pop("save_dir", "./save/")
         self.eval_steps = kwargs.pop("eval_steps", 500)
@@ -100,7 +101,7 @@ class CaptioningSolverTransformer(object):
 
         self.idx_to_word = idx_to_word
         self.model = torch.nn.DataParallel(model, self.gpu_ids)
-        model = model.to(self.device)
+        self.model = self.model.to(self.device)
 
     def _reset(self):
         """
@@ -127,19 +128,20 @@ class CaptioningSolverTransformer(object):
         features = features.to(self.device)
         captions_in = captions[:, :-1]
         captions_out = captions[:, 1:]
-
+        # print(captions.device)
+        # print("in ", captions_in.device)
         mask = (captions_out != self.model.module._null).long()
+        # print("mask has device, ", mask.device)
+        t_features = features # torch.Tensor(features).to(self.device)
+        t_captions_in = captions_in # torch.LongTensor(captions_in).to(self.device)
 
-        t_features = torch.Tensor(features)
-        t_captions_in = torch.LongTensor(captions_in)
-
-        t_captions_out = torch.LongTensor(captions_out)
-        t_mask = torch.LongTensor(mask)
+        t_captions_out = captions_out # torch.LongTensor(captions_out).to(self.device)
+        t_mask = mask # torch.LongTensor(mask).to(self.device)
         logits = self.model(t_features, t_captions_in)
 
         loss = self.transformer_temporal_softmax_loss(
             logits, t_captions_out, t_mask)
-        self.loss_history.append(loss.detach().numpy())
+        self.loss_history.append(loss.detach())
         self.optim.zero_grad()
         loss.backward()
         self.optim.step()
@@ -201,7 +203,7 @@ class CaptioningSolverTransformer(object):
 
     def evaluate(self):
         
-        sample_codes = self.model.module.sample(self.data['dev_features'][:5], max_length=250)
+        sample_codes = self.model.module.sample(self.data['dev_features'][:10].to(self.device), max_length=250)
         sample_codes = util.decode_codes(sample_codes, self.data['idx_to_word'])
         average_bleu = 0
         for i in range(len(sample_codes)):

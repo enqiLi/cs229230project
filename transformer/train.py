@@ -37,6 +37,10 @@ char_to_idx = dataprocessing.create_char_to_idx()
 idx_to_char = dataprocessing.create_idx_to_char()
 data = util.create_data_dict(train_images, train_strings, textstrings, char_to_idx, idx_to_char, dev_images, dev_strings, devcodes)
 device, gpu_ids = util.get_available_devices()
+print("Got device ", device)
+
+if device == "cuda":
+    torch.set_default_tensor_type('torch.cuda.LongTensor')
 
 save_dir = "./save/"
 
@@ -47,6 +51,8 @@ transformer = CaptioningTransformer(
           num_heads=4,
           num_layers=2,
           max_length=max_len,
+          # device=device,
+          # gpu_ids=gpu_ids
         )
 
 transformer_solver = CaptioningSolverTransformer(transformer, data, idx_to_word=data['idx_to_word'],
