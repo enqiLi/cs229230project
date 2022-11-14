@@ -160,7 +160,7 @@ class CaptioningSolver(object):
         t_mask = mask # torch.LongTensor(mask).to(self.device)
         logits = self.model(t_features, t_captions_in)
 
-        loss = self.transformer_temporal_softmax_loss(
+        loss = self.temporal_softmax_loss(
             logits, t_captions_out, t_mask)
         self.loss_history.append(loss.detach())
         self.optim.zero_grad()

@@ -49,7 +49,7 @@ class LSTMImageToSeq(nn.Module):
         # self.params["W_embed"] = np.random.randn(vocab_size, wordvec_dim)
         # self.params["W_embed"] /= 100
 
-        self.visual_projection = nn.Linear(input_dim, wordvec_dim)
+        self.visual_projection = nn.Linear(input_dim, hidden_dim)
         self.embedding = nn.Embedding(
             vocab_size, wordvec_dim, padding_idx=self._null)
 
@@ -66,7 +66,7 @@ class LSTMImageToSeq(nn.Module):
         # self.params["Wh"] /= np.sqrt(hidden_dim)
         # self.params["b"] = np.zeros(dim_mul * hidden_dim)
 
-        self.lstm = nn.LSTM(wordvec_dim, hidden_dim)
+        self.lstm = nn.LSTM(wordvec_dim, hidden_dim, batch_first=True)
 
         # Initialize output to vocab weights
         # self.params["W_vocab"] = np.random.randn(hidden_dim, vocab_size)
@@ -79,7 +79,7 @@ class LSTMImageToSeq(nn.Module):
         # for k, v in self.params.items():
         #     self.params[k] = v.astype(self.dtype)
 
-    def loss(self, features, captions):
+    def forward(self, features, captions):
         """
         Compute training-time loss for the RNN. We input image features and
         ground-truth captions for those images, and use an LSTM to compute
@@ -96,13 +96,16 @@ class LSTMImageToSeq(nn.Module):
         N, _ = features.shape
 
         # h_init, cache_affine = affine_forward(features, W_proj, b_proj)
-        h_init = self.visual_projection(features).unsqueeze(1)
-        c_init = torch.zeros((1, N, self.hidden_dim))
+        h_init = self.visual_projection(features).unsqueeze(0)
+        c_init = torch.zeros((1, N, self.hidden_dim)).cuda()
+        # print("h device is ", h_init.device)
+        # print("c device is ", c_init.device)
 
         # embed, cache_embed = word_embedding_forward(captions_in, W_embed)
         embed = self.embedding(captions)
+        # print(embed.device)
 
-        h = self.lstm(embed, (h_init, c_init))
+        h, (h_n, c_n) = self.lstm(embed, (h_init, c_init))
         ah = self.output(h)
 
         # Not computing loss here

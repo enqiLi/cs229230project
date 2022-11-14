@@ -1,6 +1,7 @@
 data/
 stacks-project/
 transformer/save
+lstm/save
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
