@@ -8,7 +8,6 @@ from solver import *
 from rnn import *
 import util as util
 import matplotlib.pyplot as plt
-import cv2
 
 train_image_path = "../data/train_images/*.png"
 arr_images, size = dataprocessing.get_pad_images(train_image_path)
@@ -16,7 +15,7 @@ train_images = dataprocessing.get_images_tensor(arr_images, size)
 
 train_string_path = "../data/train_strings/*.tex"
 textstrings = dataprocessing.get_pad_strings(train_string_path)
-#print(max_len)
+
 max_len = max([len(text) for text in textstrings])
 print(max_len)
 train_strings = dataprocessing.get_text_array(textstrings)
@@ -48,10 +47,9 @@ imageToSeq = LSTMImageToSeq(
           word_to_idx=data['word_to_idx'],
           input_dim=data['train_features'].shape[1],
           wordvec_dim=32,
-          # max_length=max_len,
         )
 
-transformer_solver = CaptioningSolver(imageToSeq, data, idx_to_word=data['idx_to_word'],
+solver = Solver(imageToSeq, data, idx_to_word=data['idx_to_word'],
            num_epochs=100,
            batch_size=32,
            learning_rate=0.001,
@@ -62,31 +60,7 @@ transformer_solver = CaptioningSolver(imageToSeq, data, idx_to_word=data['idx_to
            eval_steps=1000
          )
 
-transformer_solver.train()
+solver.train()
 
-print("Dev set BLEU score is ", transformer_solver.evaluate())
+print("Dev set BLEU score is ", solver.evaluate())
 
-
-# Plot the training losses.
-# plt.plot(transformer_solver.loss_history)
-# plt.xlabel('Iteration')
-# plt.ylabel('Loss')
-# plt.title('Training loss history')
-# plt.show()
-
-def show_samples():
-    sample_captions = transformer.sample(train_images[:3], max_length=420)
-    sample_captions = util.decode_codes(sample_captions, data['idx_to_word'])
-    i = 5
-    for sample_caption in sample_captions:
-        
-        img = cv2.imread('../data/smalltrain/diagram%d.png' % i, 0)
-        i += 1
-        
-        plt.imshow(img)            
-  
-        plt.axis('off')
-        plt.show()
-        print(sample_caption)
-
-# show_samples()

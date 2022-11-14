@@ -4,7 +4,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 import dataprocessing as dataprocessing
-from captioning_solver_transformer import *
+from solver_transformer import *
 from transformer import *
 import util as util
 import matplotlib.pyplot as plt
@@ -44,7 +44,7 @@ if device == "cuda":
 
 save_dir = "./save/"
 
-transformer = CaptioningTransformer(
+transformer = ImagetoSeqTransformer(
           word_to_idx=data['word_to_idx'],
           input_dim=data['train_features'].shape[1],
           wordvec_dim=32,
@@ -53,7 +53,7 @@ transformer = CaptioningTransformer(
           max_length=max_len,
         )
 
-transformer_solver = CaptioningSolverTransformer(transformer, data, idx_to_word=data['idx_to_word'],
+transformer_solver = SolverTransformer(transformer, data, idx_to_word=data['idx_to_word'],
            num_epochs=100,
            batch_size=32,
            learning_rate=0.001,
@@ -68,13 +68,6 @@ transformer_solver.train()
 
 print("Dev set BLEU score is ", transformer_solver.evaluate())
 
-
-# Plot the training losses.
-# plt.plot(transformer_solver.loss_history)
-# plt.xlabel('Iteration')
-# plt.ylabel('Loss')
-# plt.title('Training loss history')
-# plt.show()
 
 def show_samples():
     sample_captions = transformer.sample(train_images[:3], max_length=420)
@@ -91,4 +84,3 @@ def show_samples():
         plt.show()
         print(sample_caption)
 
-# show_samples()

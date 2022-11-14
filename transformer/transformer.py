@@ -7,11 +7,8 @@ import torch.nn as nn
 from transformer_layers import *
 
 
-class CaptioningTransformer(nn.Module):
+class ImagetoSeqTransformer(nn.Module):
     """
-    A CaptioningTransformer produces captions from image features using a
-    Transformer decoder.
-
     The Transformer receives input vectors of size D, has a vocab size of V,
     works on sequences of length T, uses word vectors of dimension W, and
     operates on minibatches of size N.
@@ -70,9 +67,7 @@ class CaptioningTransformer(nn.Module):
     def forward(self, features, captions):
         """
         Given image features and caption tokens, return a distribution over the
-        possible tokens for each timestep. Note that since the entire sequence
-        of captions is provided all at once, we mask out future timesteps.
-
+        possible tokens for each timestep. 
         Inputs:
          - features: image features, of shape (N, D)
          - captions: ground truth captions, of shape (N, T)
@@ -81,22 +76,6 @@ class CaptioningTransformer(nn.Module):
          - scores: score for each token at each timestep, of shape (N, T, V)
         """
         N, T = captions.shape
-        # Create a placeholder, to be overwritten by your code below.
-        scores = torch.empty((N, T, self.vocab_size))
-        ############################################################################
-        # TODO: Implement the forward function for CaptionTransformer.             #
-        # A few hints:                                                             #
-        #  1) You first have to embed your caption and add positional              #
-        #     encoding. You then have to project the image features into the same  #
-        #     dimensions.                                                          #
-        #  2) You have to prepare a mask (tgt_mask) for masking out the future     #
-        #     timesteps in captions. torch.tril() function might help in preparing #
-        #     this mask.                                                           #
-        #  3) Finally, apply the decoder features on the text & image embeddings   #
-        #     along with the tgt_mask. Project the output to scores per token      #
-        ############################################################################
-        # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
         embedded = self.embedding(captions)
 
         encoded_captions = self.positional_encoding(embedded)
@@ -108,10 +87,6 @@ class CaptioningTransformer(nn.Module):
 
         scores = self.output(o)
 
-        # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        ############################################################################
-        #                             END OF YOUR CODE                             #
-        ############################################################################
 
         return scores
 
@@ -127,9 +102,7 @@ class CaptioningTransformer(nn.Module):
          - captions: captions for each example, of shape (N, max_length)
         """
         with torch.no_grad():
-            # features = torch.Tensor(features)
             N = features.shape[0]
-
             # Create an empty captions tensor (where all tokens are NULL).
             captions = self._null * torch.ones((N, max_length)).int().cuda()
 
@@ -212,7 +185,6 @@ class TransformerDecoderLayer(nn.Module):
         tgt = tgt + self.dropout2(tgt2)
         tgt = self.norm2(tgt)
 
-        # Pass
         tgt2 = self.linear2(self.dropout(self.activation(self.linear1(tgt))))
         tgt = tgt + self.dropout3(tgt2)
         tgt = self.norm3(tgt)
