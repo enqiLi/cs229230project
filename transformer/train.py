@@ -57,7 +57,7 @@ transformer_solver = SolverTransformer(transformer, data, idx_to_word=data['idx_
            num_epochs=100,
            batch_size=32,
            learning_rate=0.001,
-           verbose=True, print_every=10,
+           print_every=10,
            device=device,
            gpu_ids=gpu_ids,
            save_dir=save_dir,
