@@ -117,6 +117,7 @@ class SolverTransformer(object):
             with torch.enable_grad(), \
                     tqdm(total=num_train) as progress_bar:
                 for batch in batches:
+                    self.model.train()
                     self._step(batch)
                     step += self.batch_size
                     
@@ -139,7 +140,7 @@ class SolverTransformer(object):
             epoch += 1
 
     def evaluate(self):
-        
+        self.model.eval()
         sample_codes = self.model.module.sample(self.data['dev_features'][:10].to(self.device), max_length=250)
         sample_codes = util.decode_codes(sample_codes, self.data['idx_to_word'])
         average_bleu = 0

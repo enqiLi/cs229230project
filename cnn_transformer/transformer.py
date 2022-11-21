@@ -41,13 +41,14 @@ class ImagetoSeqTransformer(nn.Module):
         # channel_2 = 16
 
         self.cnn = nn.Sequential(
-        nn.Conv2d(1, 16, (5, 5), padding=2),
-        nn.ReLU(),
-        nn.BatchNorm2d(16),
-        nn.Conv2d(16, 8, (3, 3), padding='valid'), 
-        nn.ReLU(),
-        nn.MaxPool2d(2, 2), # here the output size is (16 - (2 - 1) - 1)/2 + 1 by (16 - (2 - 1) - 1)/2 + 1
-        nn.Flatten()
+            nn.Conv2d(1, 4, (5, 5), padding=2),
+            nn.ReLU(),
+            nn.BatchNorm2d(4),
+            nn.MaxPool2d(2, 2),
+            nn.Conv2d(4, 6, (5, 5), padding='valid'), 
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2), # here the output size is (16 - (2 - 1) - 1)/2 + 1 by (16 - (2 - 1) - 1)/2 + 1
+            nn.Flatten()
         )
 
         self.visual_projection = nn.Linear(input_dim, wordvec_dim)
@@ -82,7 +83,7 @@ class ImagetoSeqTransformer(nn.Module):
         Given image features and caption tokens, return a distribution over the
         possible tokens for each timestep. 
         Inputs:
-         - features: image features, of shape (N, D)
+         - features: images, of shape (N, H, W)
          - captions: ground truth captions, of shape (N, T)
 
         Returns:
@@ -92,9 +93,9 @@ class ImagetoSeqTransformer(nn.Module):
         embedded = self.embedding(captions)
 
         encoded_captions = self.positional_encoding(embedded)
-
+        features = features.unsqueeze(1)
         features = self.cnn(features)
-
+        # print(features.shape)
         features = self.visual_projection(features).unsqueeze(1)
 
         tgt_mask = torch.tril(torch.ones(T, T)).cuda()

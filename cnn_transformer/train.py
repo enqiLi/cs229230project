@@ -13,7 +13,7 @@ import cv2
 train_image_path = "../data/train_images/*.png"
 arr_images, size = dataprocessing.get_pad_images(train_image_path)
 train_images = dataprocessing.get_images_tensor(arr_images, size, flatten=False)
-
+#print(train_images.shape)
 train_string_path = "../data/train_strings/*.tex"
 textstrings = dataprocessing.get_pad_strings(train_string_path)
 #print(max_len)
@@ -44,8 +44,8 @@ if device == "cuda":
 
 save_dir = "./save/"
 
-input_dim = data['train_features'].shape[1] * data['train_features'].shape[2]
-
+# input_dim = data['train_features'].shape[1] * data['train_features'].shape[2]
+input_dim = 78204
 transformer = ImagetoSeqTransformer(
           word_to_idx=data['word_to_idx'],
           input_dim=input_dim,

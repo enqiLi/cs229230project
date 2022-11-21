@@ -2,6 +2,7 @@ data/
 stacks-project/
 transformer/save
 lstm/save
+cnn_transformer/save
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
