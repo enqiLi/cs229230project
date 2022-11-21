@@ -65,6 +65,8 @@ def get_pad_images(path):
 def get_images_tensor(arr_images, size, flatten=True):
     if flatten:
         tensor_images = arr_images.reshape(size, -1)
+    else:
+        tensor_images = arr_images
     tensor_images = torch.from_numpy(tensor_images)
     tensor_images = tensor_images.float()
     tensor_images = 1 - tensor_images / 255
