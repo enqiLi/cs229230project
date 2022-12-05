@@ -24,7 +24,7 @@ for i in range(len(textstrings)):
     textstrings[i] = ''.join([char for char in textstrings[i] if char != '<NULL>'])
 
 dev_image_path = "../data/dev_images/*.png"
-dev_arr_images, dev_size = dataprocessing.get_pad_images(train_image_path)
+dev_arr_images, dev_size = dataprocessing.get_pad_images(dev_image_path)
 dev_images = dataprocessing.get_images_tensor(dev_arr_images, dev_size)
 
 dev_string_path = "../data/dev_strings/*.tex"
@@ -54,7 +54,7 @@ transformer = ImagetoSeqTransformer(
         )
 
 transformer_solver = SolverTransformer(transformer, data, idx_to_word=data['idx_to_word'],
-           num_epochs=100,
+           num_epochs=200,
            batch_size=32,
            learning_rate=0.001,
            print_every=10,

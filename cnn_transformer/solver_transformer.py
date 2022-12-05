@@ -53,8 +53,8 @@ class SolverTransformer(object):
         self.save_dir = kwargs.pop("save_dir", "./save/")
         self.eval_steps = kwargs.pop("eval_steps", 500)
         self.optim = torch.optim.Adam(
-            self.model.parameters(), self.learning_rate)
-
+            self.model.parameters(), self.learning_rate, weight_decay=3e-6)
+        self.scheduler = torch.optim.lr_scheduler.StepLR(self.optim, step_size=80, gamma=0.5)
         # Throw an error if there are extra keyword arguments
         if len(kwargs) > 0:
             extra = ", ".join('"%s"' % k for k in list(kwargs.keys()))
@@ -135,26 +135,43 @@ class SolverTransformer(object):
 
                         # Evaluate
                         tqdm.write(f'Evaluating at step {step}...')
-                        dev_bleu = self.evaluate()
+                        dev_bleu, train_bleu = self.evaluate()
                         tbx.add_scalar('dev/bleu', dev_bleu, step)
+                        tbx.add_scalar('train/bleu', train_bleu, step)
             epoch += 1
+            self.scheduler.step()
 
     def evaluate(self):
         self.model.eval()
-        sample_codes = self.model.module.sample(self.data['dev_features'][:10].to(self.device), max_length=250)
+        dev_features = self.data['dev_features'][50:].to(self.device)
+        # print(len(dev_features))
+        sample_codes = self.model.module.sample(dev_features, max_length=300)
         sample_codes = util.decode_codes(sample_codes, self.data['idx_to_word'])
         average_bleu = 0
         for i in range(len(sample_codes)):
             sample_caption = sample_codes[i]
-            print(sample_caption)
-            print('--------------')
-            true_code = self.data['dev_codes'][i]
-            print(true_code)
-            print('--------------')
+            true_code = self.data['dev_codes'][50+i]
+            if i % 10 == 0:
+                print(sample_caption)
+                print('--------------')
+                print(true_code)
+                print('--------------')
             average_bleu += nltk.translate.bleu_score.sentence_bleu([list(true_code)], list(sample_caption))
         average_bleu /= len(sample_codes)
-
-        return average_bleu
+        train_codes = self.model.module.sample(self.data['train_features'][200:230].to(self.device), max_length=300)
+        train_codes = util.decode_codes(train_codes, self.data['idx_to_word'])
+        average_train_bleu = 0
+        for i in range(len(train_codes)):
+            train_caption = train_codes[i]
+            true_code = self.data['train_codes'][200+i]
+            if i % 3 == 0:
+                print(train_caption)
+                print('--------------')
+                print(true_code)
+                print('--------------')
+            average_train_bleu += nltk.translate.bleu_score.sentence_bleu([list(true_code)], list(train_caption))
+        average_train_bleu /= len(train_codes)
+        return average_bleu, average_train_bleu
 
     def transformer_temporal_softmax_loss(self, x, y, mask):
         """

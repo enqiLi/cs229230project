@@ -39,16 +39,26 @@ class ImagetoSeqTransformer(nn.Module):
 
         # channel_1 = 6
         # channel_2 = 16
-
+        hidden_dim = 2048
         self.cnn = nn.Sequential(
-            nn.Conv2d(1, 4, (5, 5), padding=2),
+            nn.Conv2d(1, 6, (5, 5), padding='same'),
             nn.ReLU(),
-            nn.BatchNorm2d(4),
             nn.MaxPool2d(2, 2),
-            nn.Conv2d(4, 6, (5, 5), padding='valid'), 
+            nn.BatchNorm2d(6),
+            nn.Dropout(0.2),
+            nn.Conv2d(6, 16, (5, 5), padding='same'), 
             nn.ReLU(),
-            nn.MaxPool2d(2, 2), # here the output size is (16 - (2 - 1) - 1)/2 + 1 by (16 - (2 - 1) - 1)/2 + 1
-            nn.Flatten()
+            nn.MaxPool2d(2, 2),
+            nn.BatchNorm2d(16),
+            nn.Dropout(0.2),
+            nn.Conv2d(16, 20, (5, 5), padding='valid'),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+            nn.Flatten(),
+            nn.Linear(14260, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, input_dim),
+            nn.ReLU()
         )
 
         self.visual_projection = nn.Linear(input_dim, wordvec_dim)
@@ -91,7 +101,7 @@ class ImagetoSeqTransformer(nn.Module):
         """
         N, T = captions.shape
         embedded = self.embedding(captions)
-
+        # embedded = captions
         encoded_captions = self.positional_encoding(embedded)
         features = features.unsqueeze(1)
         features = self.cnn(features)

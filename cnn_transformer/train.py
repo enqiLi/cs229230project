@@ -24,7 +24,7 @@ for i in range(len(textstrings)):
     textstrings[i] = ''.join([char for char in textstrings[i] if char != '<NULL>'])
 
 dev_image_path = "../data/dev_images/*.png"
-dev_arr_images, dev_size = dataprocessing.get_pad_images(train_image_path)
+dev_arr_images, dev_size = dataprocessing.get_pad_images(dev_image_path)
 dev_images = dataprocessing.get_images_tensor(dev_arr_images, dev_size, flatten=False)
 
 dev_string_path = "../data/dev_strings/*.tex"
@@ -45,25 +45,25 @@ if device == "cuda":
 save_dir = "./save/"
 
 # input_dim = data['train_features'].shape[1] * data['train_features'].shape[2]
-input_dim = 78204
+input_dim = 1024
 transformer = ImagetoSeqTransformer(
           word_to_idx=data['word_to_idx'],
           input_dim=input_dim,
-          wordvec_dim=32,
+          wordvec_dim=52,
           num_heads=4,
           num_layers=2,
           max_length=max_len,
         )
 
 transformer_solver = SolverTransformer(transformer, data, idx_to_word=data['idx_to_word'],
-           num_epochs=100,
-           batch_size=32,
+           num_epochs=400,
+           batch_size=64,
            learning_rate=0.001,
            print_every=10,
            device=device,
            gpu_ids=gpu_ids,
            save_dir=save_dir,
-           eval_steps=1000
+           eval_steps=2000
          )
 
 transformer_solver.train()

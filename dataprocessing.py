@@ -45,6 +45,7 @@ def get_pad_images(path):
   '''
   filelist = sorted(glob.glob(path))
   imagelist = [np.array(cv2.imread(fname, 0)) for fname in filelist]
+  # print(np.amax(imagelist[0]))
   xdims, ydims = np.zeros(len(imagelist)), np.zeros(len(imagelist))
 
   for i in range(len(imagelist)):
