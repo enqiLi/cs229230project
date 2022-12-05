@@ -3,6 +3,9 @@ stacks-project/
 transformer/save
 lstm/save
 cnn_transformer/save
+vgg_transformer/save
+
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
