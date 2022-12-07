@@ -160,7 +160,7 @@ class TransformerDecoderLayer(nn.Module):
     A single layer of a Transformer decoder, to be used with TransformerDecoder.
     """
 
-    def __init__(self, input_dim, num_heads, dim_feedforward=2048, dropout=0.2):
+    def __init__(self, input_dim, num_heads, dim_feedforward=1024, dropout=0.2):
         """
         Construct a TransformerDecoderLayer instance.
 

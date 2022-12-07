@@ -3,7 +3,7 @@ import copy
 
 import torch
 import torch.nn as nn
-from torchvision.models import vgg16, VGG16_Weights
+from torchvision.models import resnet18, ResNet18_Weights
 
 from transformer_layers import *
 
@@ -41,9 +41,12 @@ class ImagetoSeqTransformer(nn.Module):
         # channel_1 = 6
         # channel_2 = 16
         hidden_dim = 2048
-        weights = VGG16_Weights.IMAGENET1K_FEATURES
-        self.vgg = vgg16(weights=weights)
+        weights = ResNet18_Weights.DEFAULT
+        self.resnet = resnet18(weights=None)
+        # for param in self.vgg.features.parameters():
+            # param.requires_grad = False
         self.preprocess = weights.transforms()
+        print(self.preprocess)
         # self.cnn = nn.Sequential(
         #     nn.Conv2d(1, 6, (5, 5), padding='same'),
         #     nn.ReLU(),
@@ -107,9 +110,12 @@ class ImagetoSeqTransformer(nn.Module):
         embedded = self.embedding(captions)
         # embedded = captions
         encoded_captions = self.positional_encoding(embedded)
-        features = features.unsqueeze(1)
+        # features = features.unsqueeze(1)
+        # print(features.shape)
+        features = features.permute(0, 3, 1, 2)
+        # print(features.shape)
         features = self.preprocess(features)
-        features = self.vgg(features)
+        features = self.resnet(features)
         # print(features.shape)
         features = self.visual_projection(features).unsqueeze(1)
 

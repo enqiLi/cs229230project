@@ -49,9 +49,9 @@ input_dim = 1024
 transformer = ImagetoSeqTransformer(
           word_to_idx=data['word_to_idx'],
           input_dim=input_dim,
-          wordvec_dim=52,
+          wordvec_dim=60,
           num_heads=4,
-          num_layers=2,
+          num_layers=3,
           max_length=max_len,
         )
 

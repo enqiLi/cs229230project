@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import cv2
 
 train_image_path = "../data/train_images/*.png"
-arr_images, size = dataprocessing.get_pad_images(train_image_path)
+arr_images, size = dataprocessing.get_pad_images(train_image_path, True)
 train_images = dataprocessing.get_images_tensor(arr_images, size, flatten=False)
 #print(train_images.shape)
 train_string_path = "../data/train_strings/*.tex"
@@ -24,7 +24,7 @@ for i in range(len(textstrings)):
     textstrings[i] = ''.join([char for char in textstrings[i] if char != '<NULL>'])
 
 dev_image_path = "../data/dev_images/*.png"
-dev_arr_images, dev_size = dataprocessing.get_pad_images(dev_image_path)
+dev_arr_images, dev_size = dataprocessing.get_pad_images(dev_image_path, True)
 dev_images = dataprocessing.get_images_tensor(dev_arr_images, dev_size, flatten=False)
 
 dev_string_path = "../data/dev_strings/*.tex"
@@ -45,7 +45,7 @@ if device == "cuda":
 save_dir = "./save/"
 
 # input_dim = data['train_features'].shape[1] * data['train_features'].shape[2]
-input_dim = 1024
+input_dim = 1000
 transformer = ImagetoSeqTransformer(
           word_to_idx=data['word_to_idx'],
           input_dim=input_dim,

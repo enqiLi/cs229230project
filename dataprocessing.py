@@ -37,14 +37,17 @@ def create_char_to_idx():
 def create_idx_to_char():
     return ["<NULL>", "<START>", "<END>"] + list(all_letters)
 
-def get_pad_images(path):
+def get_pad_images(path, vgg=False):
   '''
   Read all images in the directory specified by path, and pad
   them to have the same shape. Return a numpy array of 
   all padded image.
   '''
   filelist = sorted(glob.glob(path))
-  imagelist = [np.array(cv2.imread(fname, 0)) for fname in filelist]
+  if vgg:
+      imagelist = [np.array(cv2.imread(fname)) for fname in filelist]
+  else:
+      imagelist = [np.array(cv2.imread(fname, 0)) for fname in filelist]
   # print(np.amax(imagelist[0]))
   xdims, ydims = np.zeros(len(imagelist)), np.zeros(len(imagelist))
 
@@ -58,7 +61,10 @@ def get_pad_images(path):
     x_len, y_len = A.shape[0], A.shape[1]
     pad_x = (x_max - x_len) // 2
     pad_y = (y_max - y_len) // 2
-    imagelist[i] = np.pad(A, ((pad_x, x_max - x_len - pad_x), (pad_y, y_max - y_len - pad_y)), 'constant', constant_values=255)
+    if vgg:
+        imagelist[i] = np.pad(A, ((pad_x, x_max - x_len - pad_x), (pad_y, y_max - y_len - pad_y), (0, 0)), 'constant', constant_values=255)
+    else:
+        imagelist[i] = np.pad(A, ((pad_x, x_max - x_len - pad_x), (pad_y, y_max - y_len - pad_y)), 'constant', constant_values=255)
   arr_images = np.array(imagelist)
   sample_size = len(imagelist)
   return arr_images, sample_size
