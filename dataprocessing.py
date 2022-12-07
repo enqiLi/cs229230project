@@ -7,11 +7,13 @@ import numpy as np
 import cv2
 import math
 
+import tokenize
+
 all_letters = " " + string.ascii_letters + "1234567890.,;:'\"!@#$%^&*()[]{}\_-+=<>?/|`\n"
 n_letters = len(all_letters)
 
 def letterToIndex(letter):
-    return all_letters.find(letter)
+    return tokenize.all_tokens.find(letter)
 
 def letterToTensor(letter):
     tensor = torch.zeros(1, n_letters)
@@ -79,14 +81,16 @@ def get_images_tensor(arr_images, size, flatten=True):
     tensor_images = 1 - tensor_images / 255
     return tensor_images
 
-def get_pad_strings(stringpath):
+def get_pad_strings(stringpath, tokenized=False):
     stringlist = sorted(glob.glob(stringpath))
-    string_tensors = []
     textstrings = []
 
     for textfile in stringlist:
         with open(textfile, 'r') as text:
-            textstrings.append(["<START>"]+list(text.read())+["<END>"])
+            if tokenized:
+                textstrings.append(["<START>"]+ tokenize.get_string_tokens(text.read())+["<END>"])
+            else:
+                textstrings.append(["<START>"]+list(text.read())+["<END>"])
 
     lengths = np.zeros(len(textstrings))
     for i in range(len(textstrings)):

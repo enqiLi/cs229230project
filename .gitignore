@@ -4,6 +4,7 @@ transformer/save
 lstm/save
 cnn_transformer/save
 vgg_transformer/save
+tokenize/save
 
 .DS_Store
 
