@@ -7,7 +7,7 @@ import numpy as np
 import cv2
 import math
 
-import tokenize
+import mytokenize
 
 all_letters = " " + string.ascii_letters + "1234567890.,;:'\"!@#$%^&*()[]{}\_-+=<>?/|`\n"
 n_letters = len(all_letters)
@@ -88,7 +88,7 @@ def get_pad_strings(stringpath, tokenized=False):
     for textfile in stringlist:
         with open(textfile, 'r') as text:
             if tokenized:
-                textstrings.append(["<START>"]+ tokenize.get_string_tokens(text.read())+["<END>"])
+                textstrings.append(["<START>"]+ mytokenize.get_string_tokens(text.read())+["<END>"])
             else:
                 textstrings.append(["<START>"]+list(text.read())+["<END>"])
 
