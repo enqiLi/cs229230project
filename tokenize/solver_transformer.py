@@ -59,6 +59,7 @@ class SolverTransformer(object):
         if len(kwargs) > 0:
             extra = ", ".join('"%s"' % k for k in list(kwargs.keys()))
             raise ValueError("Unrecognized arguments %s" % extra)
+        self.tbx = SummaryWriter(self.save_dir)
 
         self._reset()
 
@@ -100,11 +101,9 @@ class SolverTransformer(object):
         """
         Run optimization to train the model.
         """
-        tbx = SummaryWriter(self.save_dir)
+        
         steps_till_eval = self.eval_steps
         num_train = self.data["train_captions"].shape[0]
-        iterations_per_epoch = max(num_train // self.batch_size, 1)
-        num_iterations = self.num_epochs * iterations_per_epoch
         step = 0
         epoch = 1
         batches_strings = torch.split(
@@ -124,8 +123,8 @@ class SolverTransformer(object):
                     progress_bar.update(self.batch_size)
                     progress_bar.set_postfix(epoch=epoch,
                                              CELoss=self.loss_history[-1])
-                    tbx.add_scalar('train/CELoss', self.loss_history[-1], step)
-                    tbx.add_scalar('train/LR',
+                    self.tbx.add_scalar('train/CELoss', self.loss_history[-1], step)
+                    self.tbx.add_scalar('train/LR',
                                self.optim.param_groups[0]['lr'],
                                step)
                     
@@ -135,13 +134,13 @@ class SolverTransformer(object):
 
                         # Evaluate
                         tqdm.write(f'Evaluating at step {step}...')
-                        dev_bleu, train_bleu = self.evaluate()
-                        tbx.add_scalar('dev/bleu', dev_bleu, step)
-                        tbx.add_scalar('train/bleu', train_bleu, step)
+                        dev_bleu, train_bleu = self.evaluate(step)
+                        self.tbx.add_scalar('dev/bleu', dev_bleu, step)
+                        self.tbx.add_scalar('train/bleu', train_bleu, step)
             epoch += 1
             self.scheduler.step()
 
-    def evaluate(self):
+    def evaluate(self, step):
         self.model.eval()
         dev_features = self.data['dev_features'][50:].to(self.device)
         # print(len(dev_features))
@@ -156,6 +155,7 @@ class SolverTransformer(object):
                 print('--------------')
                 print(true_code)
                 print('--------------')
+                self.tbx.add_text(tag='dev/i', text_string=sample_caption, global_step=step)
             average_bleu += nltk.translate.bleu_score.sentence_bleu([list(true_code)], list(sample_caption))
         average_bleu /= len(sample_codes)
         train_codes = self.model.module.sample(self.data['train_features'][200:230].to(self.device), max_length=300)

@@ -2,7 +2,7 @@ import string
 
 all_letters = " " + string.ascii_letters + "1234567890.,;:~'\"!@#$%^&*()[]{}\_-+=<>?/|`\n"
 all_letters = list(all_letters)
-usual_commands = ["Spec", "mathcal", "mathbf", "xymatrix", "ar", "times", "text", "otimes", "oplus", "bigoplus", "circ", "Hom", "Ext", "cap", "cup", "prod", "coprod", "gamma", "lambda", "varphi", "psi", "theta", "Theta", "omega", "Omega", "pi", "Pi", "rho", "cdots"]
+usual_commands = ["in", "Spec", "mathcal", "mathbf", "xymatrix", "ar", "times", "text", "otimes", "oplus", "bigoplus", "circ", "Hom", "Ext", "cap", "cup", "prod", "coprod", "beta", "gamma", "delta", "Delta", "lambda", "varphi", "psi", "theta", "Theta", "omega", "Omega", "sigma", "pi", "Pi", "rho", "cdots"]
 all_tokens = all_letters + usual_commands
 
 def get_string_tokens(str):
