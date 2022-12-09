@@ -56,7 +56,7 @@ transformer = ImagetoSeqTransformer(
         )
 
 transformer_solver = SolverTransformer(transformer, data, idx_to_word=data['idx_to_word'],
-           num_epochs=400,
+           num_epochs=800,
            batch_size=64,
            learning_rate=0.001,
            print_every=10,

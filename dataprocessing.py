@@ -9,11 +9,14 @@ import math
 
 import mytokenize
 
-all_letters = " " + string.ascii_letters + "1234567890.,;:'\"!@#$%^&*()[]{}\_-+=<>?/|`\n"
+all_letters = " " + string.ascii_letters + "1234567890.,;:~'\"!@#$%^&*()[]{}\_-+=<>?/|`\n"
 n_letters = len(all_letters)
 
 def letterToIndex(letter):
-    return tokenize.all_tokens.find(letter)
+    if letter in mytokenize.all_tokens:
+        return mytokenize.all_tokens.index(letter)
+    else:
+        return -1
 
 def letterToTensor(letter):
     tensor = torch.zeros(1, n_letters)
@@ -32,12 +35,12 @@ def create_char_to_idx():
         "<START>" : 1,
         "<END>" : 2
     }
-    for chr in all_letters:
+    for chr in mytokenize.all_tokens:
         char_to_idx[chr] = letterToIndex(chr) + 3
     return char_to_idx
 
 def create_idx_to_char():
-    return ["<NULL>", "<START>", "<END>"] + list(all_letters)
+    return ["<NULL>", "<START>", "<END>"] + mytokenize.all_tokens
 
 def get_pad_images(path, vgg=False):
   '''
@@ -87,10 +90,11 @@ def get_pad_strings(stringpath, tokenized=False):
 
     for textfile in stringlist:
         with open(textfile, 'r') as text:
+            tex = text.read().replace('\t', ' ')
             if tokenized:
-                textstrings.append(["<START>"]+ mytokenize.get_string_tokens(text.read())+["<END>"])
+                textstrings.append(["<START>"]+ mytokenize.get_string_tokens(tex)+["<END>"])
             else:
-                textstrings.append(["<START>"]+list(text.read())+["<END>"])
+                textstrings.append(["<START>"]+list(tex)+["<END>"])
 
     lengths = np.zeros(len(textstrings))
     for i in range(len(textstrings)):
@@ -114,6 +118,8 @@ def get_text_array(textstrings):
                 idx = 2
             else:
                 idx = letterToIndex(textstrings[i][j]) + 3
+                if idx == 2:
+                    print(''.join(textstrings[i]))
             train_codes[i][j] = idx
     train_codes = train_codes.long()
     return train_codes

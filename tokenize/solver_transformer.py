@@ -53,7 +53,7 @@ class SolverTransformer(object):
         self.save_dir = kwargs.pop("save_dir", "./save/")
         self.eval_steps = kwargs.pop("eval_steps", 500)
         self.optim = torch.optim.Adam(
-            self.model.parameters(), self.learning_rate, weight_decay=3e-6)
+            self.model.parameters(), self.learning_rate, weight_decay=1e-5)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optim, step_size=80, gamma=0.5)
         # Throw an error if there are extra keyword arguments
         if len(kwargs) > 0:
